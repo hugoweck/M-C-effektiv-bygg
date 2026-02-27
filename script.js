@@ -26,6 +26,36 @@ const revealObserver = new IntersectionObserver(
 
 document.querySelectorAll('.reveal').forEach((section) => revealObserver.observe(section));
 
+const initServiceCardAnimation = () => {
+  const servicesGrid = document.querySelector('.service-grid');
+  const serviceCards = document.querySelectorAll('.service-card');
+
+  if (!servicesGrid || !serviceCards.length) return;
+
+  if (prefersReducedMotion) {
+    serviceCards.forEach((card) => card.classList.add('is-visible'));
+    return;
+  }
+
+  const serviceCardObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        serviceCards.forEach((card) => card.classList.add('is-visible'));
+        observer.disconnect();
+      });
+    },
+    {
+      threshold: 0.4
+    }
+  );
+
+  serviceCardObserver.observe(servicesGrid);
+};
+
+initServiceCardAnimation();
+
 // PROCESS ANIMATION START
 const initProcessAnimation = () => {
   const processSection = document.querySelector('#process');
