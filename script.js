@@ -1,3 +1,5 @@
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 const revealObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
@@ -12,12 +14,28 @@ const revealObserver = new IntersectionObserver(
 
 document.querySelectorAll('.reveal').forEach((section) => revealObserver.observe(section));
 
-const heroBg = document.querySelector('.hero-bg');
-window.addEventListener('scroll', () => {
-  if (!heroBg) return;
-  const scrolled = Math.min(window.scrollY * 0.2, 120);
-  heroBg.style.transform = `scale(1.08) translateY(${scrolled}px)`;
-});
+if (prefersReducedMotion) {
+  document.querySelectorAll('.process-step').forEach((step) => step.classList.add('show'));
+} else {
+  const processObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        const steps = Array.from(entry.target.querySelectorAll('.process-step'));
+        steps.forEach((step, index) => {
+          step.style.transitionDelay = `${index * 120}ms`;
+          step.classList.add('show');
+        });
+        processObserver.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.28 }
+  );
+
+  const processList = document.querySelector('.process-line');
+  if (processList) processObserver.observe(processList);
+}
 
 const counterObserver = new IntersectionObserver(
   (entries) => {
@@ -26,7 +44,7 @@ const counterObserver = new IntersectionObserver(
 
       const el = entry.target;
       const target = Number(el.dataset.target);
-      const duration = 1200;
+      const duration = prefersReducedMotion ? 300 : 1200;
       const start = performance.now();
 
       const tick = (now) => {
@@ -56,3 +74,65 @@ document.querySelectorAll('a.page-link').forEach((link) => {
     }, 360);
   });
 });
+
+const form = document.querySelector('#forfragan');
+const formErrors = document.querySelector('#form-errors');
+const formSuccess = document.querySelector('#form-success');
+const fileInput = document.querySelector('#bilder');
+const fileFeedback = document.querySelector('#file-feedback');
+
+if (fileInput && fileFeedback) {
+  fileInput.addEventListener('change', () => {
+    const files = Array.from(fileInput.files || []);
+
+    if (files.length === 0) {
+      fileFeedback.textContent = 'Ingen fil vald.';
+      return;
+    }
+
+    if (files.length > 3) {
+      fileFeedback.textContent = 'Välj max 3 bilder.';
+      fileInput.value = '';
+      return;
+    }
+
+    fileFeedback.textContent = `Valda filer: ${files.map((file) => file.name).join(', ')}`;
+  });
+}
+
+if (form) {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!formErrors || !formSuccess) return;
+
+    formErrors.textContent = '';
+    formSuccess.textContent = '';
+
+    const formData = new FormData(form);
+    const kundtyp = formData.get('kundtyp');
+    const namn = formData.get('namn')?.toString().trim();
+    const efternamn = formData.get('efternamn')?.toString().trim();
+    const epost = formData.get('epost')?.toString().trim();
+    const telefon = formData.get('telefon')?.toString().trim();
+    const gdpr = formData.get('gdpr');
+    const files = Array.from(fileInput?.files || []);
+
+    const errors = [];
+    if (!kundtyp) errors.push('Välj kundtyp.');
+    if (!namn) errors.push('Fyll i namn.');
+    if (!efternamn) errors.push('Fyll i efternamn.');
+    if (!epost) errors.push('Fyll i e-post.');
+    if (!telefon) errors.push('Fyll i telefon.');
+    if (!gdpr) errors.push('Du måste godkänna GDPR för att skicka formuläret.');
+    if (files.length > 3) errors.push('Du kan ladda upp max 3 bilder.');
+
+    if (errors.length > 0) {
+      formErrors.textContent = errors.join(' ');
+      return;
+    }
+
+    formSuccess.textContent = 'Tack! Vi återkommer inom 24 timmar.';
+    form.reset();
+    if (fileFeedback) fileFeedback.textContent = 'Ingen fil vald.';
+  });
+}
