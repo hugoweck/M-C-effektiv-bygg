@@ -37,57 +37,87 @@ if (!prefersReducedMotion) {
 }
 
 const processSection = document.querySelector('#process');
-const processList = processSection?.querySelector('.process-list');
-const processSteps = processSection ? [...processSection.querySelectorAll('.process-step')] : [];
+const processWrap = processSection?.querySelector('[data-process]');
+const processSteps = processSection ? [...processSection.querySelectorAll('[data-step]')] : [];
 
-if (processSection && processList && processSteps.length) {
+if (processSection && processWrap && processSteps.length) {
+  const setActiveStep = (activeStep) => {
+    processSteps.forEach((step) => {
+      step.classList.toggle('is-active', step === activeStep);
+    });
+  };
+
   if (prefersReducedMotion) {
-    processList.classList.add('is-visible');
-    processSteps.forEach((step) => step.classList.add('is-visible'));
-    processSteps[0]?.classList.add('is-active');
+    processWrap.style.setProperty('--progress', '100%');
+    processSteps.forEach((step) => {
+      step.classList.add('is-visible');
+    });
+    setActiveStep(processSteps[0]);
   } else {
-    const processSectionObserver = new IntersectionObserver(
+    const revealObserver = new IntersectionObserver(
       (entries, observer) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
 
-          processList.classList.add('is-visible');
-          processSteps.forEach((step, index) => {
-            window.setTimeout(() => {
-              step.classList.add('is-visible');
-            }, index * 120);
-          });
+          const step = entry.target;
+          const stepIndex = processSteps.indexOf(step);
+          window.setTimeout(() => {
+            step.classList.add('is-visible');
+          }, stepIndex * 120);
 
-          observer.unobserve(entry.target);
+          observer.unobserve(step);
         });
       },
-      { threshold: 0.3 }
-    );
-
-    processSectionObserver.observe(processSection);
-
-    const setActiveStep = (activeStep) => {
-      processSteps.forEach((step) => {
-        step.classList.toggle('is-active', step === activeStep);
-      });
-    };
-
-    const processStepObserver = new IntersectionObserver(
-      (entries) => {
-        const inViewEntries = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-        if (!inViewEntries.length) return;
-        setActiveStep(inViewEntries[0].target);
-      },
       {
-        threshold: [0.35, 0.6],
-        rootMargin: '-42% 0px -42% 0px'
+        threshold: 0.18,
+        rootMargin: '0px 0px -10% 0px'
       }
     );
 
-    processSteps.forEach((step) => processStepObserver.observe(step));
+    processSteps.forEach((step) => revealObserver.observe(step));
+
+    let ticking = false;
+
+    const updateProcessState = () => {
+      const viewportCenter = window.innerHeight * 0.5;
+      const sectionRect = processSection.getBoundingClientRect();
+      const scrollRange = sectionRect.height + window.innerHeight;
+      const sectionProgress = ((window.innerHeight - sectionRect.top) / scrollRange) * 100;
+      const clampedProgress = Math.max(0, Math.min(100, sectionProgress));
+      processWrap.style.setProperty('--progress', `${clampedProgress}%`);
+
+      if (sectionRect.bottom < 0 || sectionRect.top > window.innerHeight) {
+        ticking = false;
+        return;
+      }
+
+      let nearestStep = processSteps[0];
+      let nearestDistance = Number.POSITIVE_INFINITY;
+
+      processSteps.forEach((step) => {
+        const rect = step.getBoundingClientRect();
+        const stepCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(stepCenter - viewportCenter);
+
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestStep = step;
+        }
+      });
+
+      setActiveStep(nearestStep);
+      ticking = false;
+    };
+
+    const requestProcessUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(updateProcessState);
+    };
+
+    requestProcessUpdate();
+    window.addEventListener('scroll', requestProcessUpdate, { passive: true });
+    window.addEventListener('resize', requestProcessUpdate);
   }
 }
 
