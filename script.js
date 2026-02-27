@@ -1,6 +1,8 @@
 const siteHeader = document.querySelector('.site-header');
-const heroBg = document.querySelector('.hero-bg');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isLowPowerDevice =
+  (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+  (navigator.deviceMemory && navigator.deviceMemory <= 4);
 
 const updateHeaderState = () => {
   if (!siteHeader) return;
@@ -24,30 +26,14 @@ const revealObserver = new IntersectionObserver(
 
 document.querySelectorAll('.reveal').forEach((section) => revealObserver.observe(section));
 
-if (!prefersReducedMotion) {
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!heroBg) return;
-      const scrolled = Math.min(window.scrollY * 0.2, 120);
-      heroBg.style.transform = `scale(1.08) translateY(${scrolled}px)`;
-    },
-    { passive: true }
-  );
-}
+// PROCESS ANIMATION START
+const initProcessAnimation = () => {
+  const processSection = document.querySelector('#process');
+  const processWrap = processSection?.querySelector('[data-process]');
+  const processSteps = processSection ? [...processSection.querySelectorAll('[data-step]')] : [];
+  const disableProcessAnimation = prefersReducedMotion || isLowPowerDevice;
 
-const processSection = document.querySelector('#process');
-const processWrap = processSection?.querySelector('[data-process]');
-const processSteps = processSection ? [...processSection.querySelectorAll('[data-step]')] : [];
-
-if (processSection && processWrap && processSteps.length) {
-  const activationRange = 0.7;
-  const widthUpdateThreshold = 0.5;
-  let latestScrollY = window.scrollY;
-  let ticking = false;
-  let isInView = false;
-  let lastProgressWidth = -1;
-  let currentStepIndex = -1;
+  if (!processSection || !processWrap || !processSteps.length) return;
 
   const setDoneSteps = (doneIndex) => {
     processSteps.forEach((step, index) => {
@@ -56,6 +42,20 @@ if (processSection && processWrap && processSteps.length) {
       step.classList.toggle('is-pending', !isDone);
     });
   };
+
+  if (disableProcessAnimation) {
+    processSection.classList.add('process-static');
+    processWrap.style.setProperty('--progress', '100%');
+    setDoneSteps(processSteps.length - 1);
+    return;
+  }
+
+  const activationRange = 0.7;
+  const widthUpdateThreshold = 0.5;
+  let ticking = false;
+  let isInView = false;
+  let lastProgressWidth = -1;
+  let currentStepIndex = -1;
 
   processSteps.forEach((step) => {
     step.classList.add('is-pending');
@@ -90,7 +90,7 @@ if (processSection && processWrap && processSteps.length) {
   };
 
   const requestProcessUpdate = () => {
-    if (ticking || !isInView) return;
+    if (!isInView || ticking) return;
     ticking = true;
     window.requestAnimationFrame(updateProcessState);
   };
@@ -116,22 +116,16 @@ if (processSection && processWrap && processSteps.length) {
   window.addEventListener(
     'scroll',
     () => {
-      latestScrollY = window.scrollY;
       requestProcessUpdate();
     },
     { passive: true }
   );
 
-  window.addEventListener('resize', () => {
-    latestScrollY = window.scrollY;
-    requestProcessUpdate();
-  });
+  window.addEventListener('resize', requestProcessUpdate);
+};
 
-  if (prefersReducedMotion) {
-    processWrap.style.setProperty('--progress', '100%');
-    setDoneSteps(processSteps.length - 1);
-  }
-}
+initProcessAnimation();
+// PROCESS ANIMATION END
 
 const counterObserver = new IntersectionObserver(
   (entries) => {
