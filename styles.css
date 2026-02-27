@@ -93,8 +93,9 @@ a {
 }
 
 .brand img {
-  width: 160px;
-  height: 56px;
+  width: clamp(150px, 22vw, 220px);
+  height: auto;
+  max-height: 64px;
   object-fit: contain;
 }
 
@@ -148,7 +149,7 @@ a {
 }
 
 .hero-bg {
-  background: url("587042338_1490863259667357_3869586365317808250_nlow.webp") center/cover no-repeat;
+  background: url("M%26C%20Effektiv%20Bygg%20hero.png") center/cover no-repeat;
   transform: scale(1.08);
   will-change: transform;
 }
