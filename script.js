@@ -152,19 +152,6 @@ const counterObserver = new IntersectionObserver(
 
 document.querySelectorAll('.counter').forEach((counter) => counterObserver.observe(counter));
 
-document.querySelectorAll('a.page-link').forEach((link) => {
-  link.addEventListener('click', (event) => {
-    const href = link.getAttribute('href');
-    if (!href) return;
-
-    event.preventDefault();
-    document.body.classList.add('page-leave');
-    setTimeout(() => {
-      window.location.href = href;
-    }, 360);
-  });
-});
-
 const initContactForm = () => {
   const form = document.querySelector('#contactForm');
   const submitButton = document.querySelector('#contactSubmit');
