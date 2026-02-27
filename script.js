@@ -36,6 +36,61 @@ if (!prefersReducedMotion) {
   );
 }
 
+const processSection = document.querySelector('#process');
+const processList = processSection?.querySelector('.process-list');
+const processSteps = processSection ? [...processSection.querySelectorAll('.process-step')] : [];
+
+if (processSection && processList && processSteps.length) {
+  if (prefersReducedMotion) {
+    processList.classList.add('is-visible');
+    processSteps.forEach((step) => step.classList.add('is-visible'));
+    processSteps[0]?.classList.add('is-active');
+  } else {
+    const processSectionObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          processList.classList.add('is-visible');
+          processSteps.forEach((step, index) => {
+            window.setTimeout(() => {
+              step.classList.add('is-visible');
+            }, index * 120);
+          });
+
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    processSectionObserver.observe(processSection);
+
+    const setActiveStep = (activeStep) => {
+      processSteps.forEach((step) => {
+        step.classList.toggle('is-active', step === activeStep);
+      });
+    };
+
+    const processStepObserver = new IntersectionObserver(
+      (entries) => {
+        const inViewEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!inViewEntries.length) return;
+        setActiveStep(inViewEntries[0].target);
+      },
+      {
+        threshold: [0.35, 0.6],
+        rootMargin: '-42% 0px -42% 0px'
+      }
+    );
+
+    processSteps.forEach((step) => processStepObserver.observe(step));
+  }
+}
+
 const counterObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
