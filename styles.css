@@ -14,12 +14,17 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  margin: 0;
   font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
   color: var(--text-main);
   background: #fff;
@@ -134,11 +139,16 @@ a {
 }
 
 .hero {
-  min-height: 95vh;
   position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
   display: flex;
   align-items: end;
-  padding: calc(var(--header-height) + 4rem) 0 6rem;
   color: #fff;
 }
 
@@ -150,17 +160,32 @@ a {
 
 .hero-bg {
   background: url("M%26C%20Effektiv%20Bygg%20hero.png") center/cover no-repeat;
-  transform: scale(1.08);
-  will-change: transform;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: none;
 }
 
 .hero-overlay {
-  background: linear-gradient(170deg, rgba(15, 15, 15, 0.15) 0%, rgba(15, 15, 15, 0.82) 72%);
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .hero-content {
   position: relative;
+  z-index: 2;
   max-width: 760px;
+  padding: calc(var(--header-height) + 4rem) 0 4rem;
+}
+
+.hero + section {
+  margin-top: 0 !important;
+}
+
+.section.section-after-hero {
+  margin: 0;
+  padding: 80px 0;
+  background: #f6f6f4;
 }
 
 .eyebrow {
@@ -239,6 +264,7 @@ h2 {
 
 .section {
   padding: clamp(4.2rem, 8vw, 7.5rem) 0;
+  display: block;
 }
 
 .light {
@@ -469,7 +495,11 @@ h2 {
   }
 
   .hero {
-    min-height: 82vh;
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  .hero-content {
     padding-top: calc(var(--header-height) + 2rem);
   }
 
@@ -491,9 +521,5 @@ h2 {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .hero-bg {
-    transform: none !important;
   }
 }
