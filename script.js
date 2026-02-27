@@ -1,3 +1,15 @@
+const siteHeader = document.querySelector('.site-header');
+const heroBg = document.querySelector('.hero-bg');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const updateHeaderState = () => {
+  if (!siteHeader) return;
+  siteHeader.classList.toggle('is-scrolled', window.scrollY > 20);
+};
+
+updateHeaderState();
+window.addEventListener('scroll', updateHeaderState, { passive: true });
+
 const revealObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
@@ -12,12 +24,17 @@ const revealObserver = new IntersectionObserver(
 
 document.querySelectorAll('.reveal').forEach((section) => revealObserver.observe(section));
 
-const heroBg = document.querySelector('.hero-bg');
-window.addEventListener('scroll', () => {
-  if (!heroBg) return;
-  const scrolled = Math.min(window.scrollY * 0.2, 120);
-  heroBg.style.transform = `scale(1.08) translateY(${scrolled}px)`;
-});
+if (!prefersReducedMotion) {
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!heroBg) return;
+      const scrolled = Math.min(window.scrollY * 0.2, 120);
+      heroBg.style.transform = `scale(1.08) translateY(${scrolled}px)`;
+    },
+    { passive: true }
+  );
+}
 
 const counterObserver = new IntersectionObserver(
   (entries) => {
