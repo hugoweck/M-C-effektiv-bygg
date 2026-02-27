@@ -41,83 +41,95 @@ const processWrap = processSection?.querySelector('[data-process]');
 const processSteps = processSection ? [...processSection.querySelectorAll('[data-step]')] : [];
 
 if (processSection && processWrap && processSteps.length) {
-  const setActiveStep = (activeStep) => {
-    processSteps.forEach((step) => {
-      step.classList.toggle('is-active', step === activeStep);
+  const activationRange = 0.7;
+  const widthUpdateThreshold = 0.5;
+  let latestScrollY = window.scrollY;
+  let ticking = false;
+  let isInView = false;
+  let lastProgressWidth = -1;
+  let currentStepIndex = -1;
+
+  const setDoneSteps = (doneIndex) => {
+    processSteps.forEach((step, index) => {
+      const isDone = index <= doneIndex;
+      step.classList.toggle('is-done', isDone);
+      step.classList.toggle('is-pending', !isDone);
     });
   };
 
-  if (prefersReducedMotion) {
-    processWrap.style.setProperty('--progress', '100%');
-    processSteps.forEach((step) => {
-      step.classList.add('is-visible');
-    });
-    setActiveStep(processSteps[0]);
-  } else {
-    const revealObserver = new IntersectionObserver(
-      (entries, observer) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
+  processSteps.forEach((step) => {
+    step.classList.add('is-pending');
+  });
 
-          const step = entry.target;
-          const stepIndex = processSteps.indexOf(step);
-          window.setTimeout(() => {
-            step.classList.add('is-visible');
-          }, stepIndex * 120);
+  const updateProcessState = () => {
+    ticking = false;
 
-          observer.unobserve(step);
-        });
-      },
-      {
-        threshold: 0.18,
-        rootMargin: '0px 0px -10% 0px'
-      }
+    if (!isInView) return;
+
+    const sectionRect = processSection.getBoundingClientRect();
+    const scrollRange = sectionRect.height + window.innerHeight;
+    const rawProgress = (window.innerHeight - sectionRect.top) / scrollRange;
+    const clampedProgress = Math.max(0, Math.min(1, rawProgress));
+    const effectiveProgress = Math.max(0, Math.min(1, clampedProgress / activationRange));
+    const progressWidth = effectiveProgress * 100;
+
+    if (Math.abs(progressWidth - lastProgressWidth) > widthUpdateThreshold) {
+      processWrap.style.setProperty('--progress', `${progressWidth}%`);
+      lastProgressWidth = progressWidth;
+    }
+
+    const nextStepIndex = Math.max(
+      -1,
+      Math.min(processSteps.length - 1, Math.floor(effectiveProgress * processSteps.length) - 1)
     );
 
-    processSteps.forEach((step) => revealObserver.observe(step));
+    if (nextStepIndex !== currentStepIndex) {
+      currentStepIndex = nextStepIndex;
+      setDoneSteps(currentStepIndex);
+    }
+  };
 
-    let ticking = false;
+  const requestProcessUpdate = () => {
+    if (ticking || !isInView) return;
+    ticking = true;
+    window.requestAnimationFrame(updateProcessState);
+  };
 
-    const updateProcessState = () => {
-      const viewportCenter = window.innerHeight * 0.5;
-      const sectionRect = processSection.getBoundingClientRect();
-      const scrollRange = sectionRect.height + window.innerHeight;
-      const sectionProgress = ((window.innerHeight - sectionRect.top) / scrollRange) * 100;
-      const clampedProgress = Math.max(0, Math.min(100, sectionProgress));
-      processWrap.style.setProperty('--progress', `${clampedProgress}%`);
+  const processViewportObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        isInView = entry.isIntersecting;
 
-      if (sectionRect.bottom < 0 || sectionRect.top > window.innerHeight) {
-        ticking = false;
-        return;
-      }
-
-      let nearestStep = processSteps[0];
-      let nearestDistance = Number.POSITIVE_INFINITY;
-
-      processSteps.forEach((step) => {
-        const rect = step.getBoundingClientRect();
-        const stepCenter = rect.top + rect.height / 2;
-        const distance = Math.abs(stepCenter - viewportCenter);
-
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
-          nearestStep = step;
+        if (isInView) {
+          requestProcessUpdate();
         }
       });
+    },
+    {
+      threshold: 0,
+      rootMargin: '15% 0px 15% 0px'
+    }
+  );
 
-      setActiveStep(nearestStep);
-      ticking = false;
-    };
+  processViewportObserver.observe(processSection);
 
-    const requestProcessUpdate = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(updateProcessState);
-    };
+  window.addEventListener(
+    'scroll',
+    () => {
+      latestScrollY = window.scrollY;
+      requestProcessUpdate();
+    },
+    { passive: true }
+  );
 
+  window.addEventListener('resize', () => {
+    latestScrollY = window.scrollY;
     requestProcessUpdate();
-    window.addEventListener('scroll', requestProcessUpdate, { passive: true });
-    window.addEventListener('resize', requestProcessUpdate);
+  });
+
+  if (prefersReducedMotion) {
+    processWrap.style.setProperty('--progress', '100%');
+    setDoneSteps(processSteps.length - 1);
   }
 }
 
