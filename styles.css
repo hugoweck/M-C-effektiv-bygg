@@ -300,7 +300,35 @@ h2 {
   border: 1px solid var(--line);
   background: #fff;
   display: block;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  opacity: 0;
+  transform: translateX(80px);
+  transition:
+    transform 0.7s cubic-bezier(.22, .61, .36, 1),
+    opacity 0.6s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+  will-change: transform, opacity;
+}
+
+.service-card.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.service-card:nth-child(1) {
+  transition-delay: 0s;
+}
+
+.service-card:nth-child(2) {
+  transition-delay: 0.15s;
+}
+
+.service-card:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+.service-card:nth-child(4) {
+  transition-delay: 0.45s;
 }
 
 .service-card:hover {
