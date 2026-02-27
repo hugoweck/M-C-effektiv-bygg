@@ -325,105 +325,178 @@ h2 {
 }
 
 .process {
-  overflow: hidden;
+  --progress: 0%;
 }
 
 .process-head {
   max-width: 46rem;
 }
 
-.process-track-wrapper {
+.process-wrap {
   position: relative;
   margin-top: 2.4rem;
-  padding: 0.3rem 0;
-}
-
-.process-line,
-.process-progress-line {
-  position: absolute;
-  top: 30px;
-  left: 12.5%;
-  width: 75%;
-  height: 2px;
-  border-radius: 999px;
-}
-
-.process-line {
-  background: rgba(17, 17, 17, 0.16);
-}
-
-.process-progress-line {
-  width: 0%;
-  background: #111;
-  transition: width 220ms ease-out;
-}
-
-.process-track {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(1rem, 4.2vw, 3.75rem);
+  grid-template-columns: 60px minmax(0, 1fr);
+  column-gap: clamp(1.1rem, 2.3vw, 2rem);
+}
+
+.process-rail {
   position: relative;
+  min-height: 100%;
 }
 
-.process-step {
-  position: relative;
-  text-align: center;
-  padding-top: 0.1rem;
-  transform: translateY(26px) scale(0.95);
-  opacity: 0;
-  filter: blur(3px);
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1), filter 600ms cubic-bezier(0.16, 1, 0.3, 1);
+.rail-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 22px;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.15);
 }
 
-.process-step.is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(0.95);
-  filter: none;
+.rail-progress {
+  position: absolute;
+  top: 0;
+  left: 22px;
+  width: 2px;
+  height: var(--progress, 0%);
+  background: rgba(0, 0, 0, 0.85);
+  transform-origin: top;
+  transition: height 0.18s linear;
 }
 
-.step-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 2px solid #111;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  background: #fff;
-  transition: 400ms ease;
-}
-
-.process-step h3 {
+.process-steps {
   margin: 0;
-  font-size: clamp(1.05rem, 1.35vw, 1.3rem);
-  color: rgba(17, 17, 17, 0.8);
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
 }
 
-.process-step p {
-  margin: 0.7rem auto 0;
-  max-width: 32ch;
-  color: rgba(17, 17, 17, 0.62);
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 0.95rem;
+  min-height: 120px;
+  padding: 0.2rem 0;
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(2px);
 }
 
-.process-step:not(.active) {
-  opacity: 0.4;
-  transform: translateY(0) scale(0.95);
-  filter: none;
+.step::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 8px -8px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 12% 50%, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0));
+  opacity: 0;
+  transform: translateX(-8px) scale(0.98);
+  transition: opacity 420ms ease, transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
 }
 
-.process-step.active {
+.step.is-visible {
   opacity: 1;
-  transform: translateY(-12px) scale(1.05);
+  transform: none;
+  filter: none;
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1), transform 600ms cubic-bezier(0.22, 1, 0.36, 1), filter 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.process-step.active .step-circle {
-  background: #111;
-  color: #fff;
-  transform: scale(1.1);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2);
+.step:not(.is-active) {
+  opacity: 0.7;
+}
+
+.step-dot,
+.step-content {
+  position: relative;
+  z-index: 1;
+}
+
+.step-dot {
+  margin-top: 0.5rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.36);
+  background: rgba(255, 255, 255, 0.72);
+  opacity: 0.6;
+  transition: transform 360ms ease, background-color 360ms ease, border-color 360ms ease, box-shadow 360ms ease, opacity 360ms ease;
+}
+
+.step-kicker {
+  margin-bottom: 0.5rem;
+}
+
+.step-num {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(17, 17, 17, 0.44);
+  transition: color 260ms ease;
+}
+
+.step-content {
+  border-top: 1px solid rgba(20, 20, 20, 0.18);
+  padding-top: 0.95rem;
+}
+
+.step-content h3 {
+  margin: 0;
+  display: inline-block;
+  font-size: clamp(1.02rem, 1.3vw, 1.24rem);
+  letter-spacing: -0.01em;
+  color: rgba(17, 17, 17, 0.72);
+  opacity: 0.72;
+  transition: opacity 280ms ease, color 280ms ease, text-shadow 300ms ease;
+}
+
+.step-content h3::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin-top: 0.34rem;
+  background: linear-gradient(90deg, rgba(17, 17, 17, 0.52), rgba(17, 17, 17, 0));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms ease;
+}
+
+.step-content p {
+  margin: 0.48rem 0 0;
+  color: rgba(17, 17, 17, 0.63);
+  max-width: 58ch;
+}
+
+.step.is-active::before {
+  opacity: 1;
+  transform: none;
+}
+
+.step.is-active .step-dot {
+  transform: scale(1.15);
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(0, 0, 0, 0.72);
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.08);
+  opacity: 1;
+}
+
+.step.is-active .step-num {
+  color: rgba(0, 0, 0, 0.86);
+}
+
+.step.is-active h3 {
+  opacity: 1;
+  color: #111;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.08);
+}
+
+.step.is-active h3::after {
+  transform: scaleX(1);
 }
 
 .project-grid {
@@ -588,33 +661,25 @@ h2 {
   }
 }
 
-@media (max-width: 768px) {
-  .process-line,
-  .process-progress-line {
-    display: none;
+@media (max-width: 720px) {
+  .process-wrap {
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 0.78rem;
   }
 
-  .process-track-wrapper {
-    margin-inline: -1rem;
-    padding-inline: 1rem;
+  .rail-line,
+  .rail-progress {
+    left: 12px;
   }
 
-  .process-track {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 1rem;
-    padding: 0.25rem 0 0.5rem;
-    scrollbar-width: none;
+  .step {
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 0.7rem;
+    min-height: 104px;
   }
 
-  .process-track::-webkit-scrollbar {
-    display: none;
-  }
-
-  .process-step {
-    min-width: 80%;
-    scroll-snap-align: center;
+  .step-content {
+    padding-top: 0.8rem;
   }
 }
 
@@ -631,9 +696,13 @@ h2 {
     transition-duration: 0.01ms !important;
   }
 
-  .process-progress-line,
-  .process-step,
-  .step-circle {
+  .rail-progress {
+    transition: none !important;
+  }
+
+  .step,
+  .step::before,
+  .step-content h3::after {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;

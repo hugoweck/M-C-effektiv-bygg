@@ -38,90 +38,74 @@ if (!prefersReducedMotion) {
 
 const processSection = document.querySelector('#process');
 const processWrap = processSection?.querySelector('[data-process]');
-const processProgressLine = processSection?.querySelector('.process-progress-line');
-const processTrack = processSection?.querySelector('.process-track');
-const processSteps = processSection ? [...processSection.querySelectorAll('.process-step')] : [];
+const processSteps = processSection ? [...processSection.querySelectorAll('[data-step]')] : [];
 
-if (processSection && processWrap && processProgressLine && processTrack && processSteps.length) {
-  const setActiveStep = (index) => {
-    processSteps.forEach((step, stepIndex) => {
-      step.classList.toggle('active', stepIndex === index);
+if (processSection && processWrap && processSteps.length) {
+  const setActiveStep = (activeStep) => {
+    processSteps.forEach((step) => {
+      step.classList.toggle('is-active', step === activeStep);
     });
   };
 
-  const isMobileLayout = () => window.innerWidth <= 768;
-
   if (prefersReducedMotion) {
-    processProgressLine.style.width = '100%';
-    processSteps.forEach((step) => step.classList.add('is-visible'));
-    setActiveStep(0);
+    processWrap.style.setProperty('--progress', '100%');
+    processSteps.forEach((step) => {
+      step.classList.add('is-visible');
+    });
+    setActiveStep(processSteps[0]);
   } else {
-    const processRevealObserver = new IntersectionObserver(
+    const revealObserver = new IntersectionObserver(
       (entries, observer) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
 
-          processSteps.forEach((step, index) => {
-            window.setTimeout(() => step.classList.add('is-visible'), index * 100);
-          });
+          const step = entry.target;
+          const stepIndex = processSteps.indexOf(step);
+          window.setTimeout(() => {
+            step.classList.add('is-visible');
+          }, stepIndex * 120);
 
-          observer.disconnect();
+          observer.unobserve(step);
         });
       },
       {
-        threshold: 0.22,
-        rootMargin: '0px 0px -12% 0px'
+        threshold: 0.18,
+        rootMargin: '0px 0px -10% 0px'
       }
     );
 
-    processRevealObserver.observe(processSection);
+    processSteps.forEach((step) => revealObserver.observe(step));
 
     let ticking = false;
 
-    const updateDesktopProgress = () => {
+    const updateProcessState = () => {
+      const viewportCenter = window.innerHeight * 0.5;
       const sectionRect = processSection.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const scrollDistance = sectionRect.height + viewportHeight;
-      const rawProgress = ((viewportHeight - sectionRect.top) / scrollDistance) * 100;
-      const clampedProgress = Math.max(0, Math.min(100, rawProgress));
+      const scrollRange = sectionRect.height + window.innerHeight;
+      const sectionProgress = ((window.innerHeight - sectionRect.top) / scrollRange) * 100;
+      const clampedProgress = Math.max(0, Math.min(100, sectionProgress));
+      processWrap.style.setProperty('--progress', `${clampedProgress}%`);
 
-      processProgressLine.style.width = `${clampedProgress}%`;
+      if (sectionRect.bottom < 0 || sectionRect.top > window.innerHeight) {
+        ticking = false;
+        return;
+      }
 
-      const activeIndex = Math.min(
-        processSteps.length - 1,
-        Math.max(0, Math.floor((clampedProgress / 100) * processSteps.length))
-      );
+      let nearestStep = processSteps[0];
+      let nearestDistance = Number.POSITIVE_INFINITY;
 
-      setActiveStep(activeIndex);
-    };
-
-    const updateMobileActiveStep = () => {
-      const trackRect = processTrack.getBoundingClientRect();
-      const trackCenter = trackRect.left + trackRect.width / 2;
-      let closestIndex = 0;
-      let smallestDistance = Number.POSITIVE_INFINITY;
-
-      processSteps.forEach((step, index) => {
+      processSteps.forEach((step) => {
         const rect = step.getBoundingClientRect();
-        const center = rect.left + rect.width / 2;
-        const distance = Math.abs(center - trackCenter);
+        const stepCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(stepCenter - viewportCenter);
 
-        if (distance < smallestDistance) {
-          smallestDistance = distance;
-          closestIndex = index;
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestStep = step;
         }
       });
 
-      setActiveStep(closestIndex);
-    };
-
-    const updateProcessState = () => {
-      if (isMobileLayout()) {
-        updateMobileActiveStep();
-      } else {
-        updateDesktopProgress();
-      }
-
+      setActiveStep(nearestStep);
       ticking = false;
     };
 
@@ -132,10 +116,8 @@ if (processSection && processWrap && processProgressLine && processTrack && proc
     };
 
     requestProcessUpdate();
-
     window.addEventListener('scroll', requestProcessUpdate, { passive: true });
     window.addEventListener('resize', requestProcessUpdate);
-    processTrack.addEventListener('scroll', requestProcessUpdate, { passive: true });
   }
 }
 
