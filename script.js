@@ -164,3 +164,55 @@ document.querySelectorAll('a.page-link').forEach((link) => {
     }, 360);
   });
 });
+
+const initContactForm = () => {
+  const form = document.querySelector('#contactForm');
+  const submitButton = document.querySelector('#contactSubmit');
+  const formStatus = document.querySelector('#formStatus');
+
+  if (!form || !submitButton || !formStatus) return;
+
+  const EMAILJS_PUBLIC_KEY = 'YOUR_EMAILJS_PUBLIC_KEY';
+  const EMAILJS_SERVICE_ID = 'YOUR_EMAILJS_SERVICE_ID';
+  const EMAILJS_TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID';
+
+  if (window.emailjs) {
+    window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    if (!window.emailjs) {
+      formStatus.textContent = 'Formulärtjänsten kunde inte laddas. Försök igen senare eller ring oss.';
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Skickar…';
+    formStatus.textContent = 'Skickar…';
+
+    const formData = new FormData(form);
+    const templateParams = {
+      to_email: 'info@mceffektivbygg.se',
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      service: formData.get('service'),
+      message: formData.get('message')
+    };
+
+    try {
+      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+      formStatus.textContent = 'Tack! Vi återkommer inom 24h.';
+      form.reset();
+    } catch (error) {
+      formStatus.textContent = 'Något gick fel. Testa igen eller kontakta oss på 070-912 31 63.';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Skicka förfrågan';
+    }
+  });
+};
+
+initContactForm();
