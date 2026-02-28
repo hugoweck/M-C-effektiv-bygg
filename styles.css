@@ -1088,14 +1088,18 @@ h2 {
   margin-bottom: 1.6rem;
 }
 
-.service-detail .cta-row {
+.cta-buttons {
   display: flex;
+  gap: 16px;
+  margin-top: 32px;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.4rem;
 }
 
 @media (max-width: 768px) {
+  .cta-buttons {
+    flex-direction: column;
+  }
+
   .service-detail .project-layout {
     grid-template-columns: 1fr;
   }
