@@ -4,6 +4,16 @@ const isLowPowerDevice =
   (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
   (navigator.deviceMemory && navigator.deviceMemory <= 4);
 
+document.addEventListener('DOMContentLoaded', () => {
+  const isMobileViewport = window.innerWidth <= 768;
+  const currentHash = window.location.hash;
+
+  if (isMobileViewport && currentHash && currentHash !== '#kontakt') {
+    history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+    window.scrollTo(0, 0);
+  }
+});
+
 const updateHeaderState = () => {
   if (!siteHeader) return;
   siteHeader.classList.toggle('is-scrolled', window.scrollY > 20);
@@ -47,7 +57,8 @@ const initServiceCardAnimation = () => {
       });
     },
     {
-      threshold: 0.4
+      threshold: 0.08,
+      rootMargin: '0px 0px -15% 0px'
     }
   );
 
