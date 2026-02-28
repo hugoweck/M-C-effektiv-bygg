@@ -3,15 +3,61 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const isLowPowerDevice =
   (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
   (navigator.deviceMemory && navigator.deviceMemory <= 4);
+const SCROLL_STORAGE_KEY = 'mc_scrollY';
+
+let scrollSaveTicking = false;
+
+window.addEventListener(
+  'scroll',
+  () => {
+    if (scrollSaveTicking) return;
+
+    scrollSaveTicking = true;
+
+    window.requestAnimationFrame(() => {
+      sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY || 0));
+      scrollSaveTicking = false;
+    });
+  },
+  { passive: true }
+);
 
 document.addEventListener('DOMContentLoaded', () => {
-  const isMobileViewport = window.innerWidth <= 768;
-  const currentHash = window.location.hash;
+  if (!window.location.hash) {
+    const savedScrollY = Number(sessionStorage.getItem(SCROLL_STORAGE_KEY) || 0);
 
-  if (isMobileViewport && currentHash && currentHash !== '#kontakt') {
-    history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-    window.scrollTo(0, 0);
+    if (savedScrollY > 0) {
+      const restoreScrollPosition = () => {
+        window.scrollTo({ top: savedScrollY, left: 0, behavior: 'auto' });
+      };
+
+      restoreScrollPosition();
+      window.requestAnimationFrame(restoreScrollPosition);
+      window.setTimeout(restoreScrollPosition, 50);
+    }
   }
+
+  const shouldClearSavedScroll = (anchor) => {
+    if (!anchor) return false;
+
+    if (anchor.classList.contains('brand')) return true;
+
+    const rawHref = (anchor.getAttribute('href') || '').trim();
+    if (rawHref === '#' || rawHref === '#top') return true;
+
+    const targetUrl = new URL(anchor.href, window.location.href);
+    const isTopHash = targetUrl.hash === '' || targetUrl.hash === '#' || targetUrl.hash === '#top';
+    const isIndexTarget = /\/(index\.html)?$/.test(targetUrl.pathname);
+
+    return isTopHash && isIndexTarget;
+  };
+
+  document.addEventListener('click', (event) => {
+    const anchor = event.target.closest('.site-header a[href]');
+    if (!shouldClearSavedScroll(anchor)) return;
+
+    sessionStorage.removeItem(SCROLL_STORAGE_KEY);
+  });
 });
 
 const updateHeaderState = () => {
