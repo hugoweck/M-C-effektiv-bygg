@@ -206,6 +206,7 @@ h4 {
 h1 {
   font-size: clamp(2.1rem, 5vw, 4.6rem);
   margin-bottom: 1.2rem;
+  overflow-wrap: anywhere;
 }
 
 h2 {
@@ -296,6 +297,12 @@ h2 {
   gap: 1.2rem;
 }
 
+.service-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
 .service-card {
   border: 1px solid var(--line);
   background: #fff;
@@ -315,26 +322,32 @@ h2 {
   transform: translateX(0);
 }
 
-.service-card:nth-child(1) {
+.service-card-link:nth-child(1) .service-card {
   transition-delay: 0s;
 }
 
-.service-card:nth-child(2) {
+.service-card-link:nth-child(2) .service-card {
   transition-delay: 0.15s;
 }
 
-.service-card:nth-child(3) {
+.service-card-link:nth-child(3) .service-card {
   transition-delay: 0.3s;
 }
 
-.service-card:nth-child(4) {
+.service-card-link:nth-child(4) .service-card {
   transition-delay: 0.45s;
 }
 
-.service-card:hover {
+.service-card-link:hover .service-card,
+.service-card-link:focus-visible .service-card {
   transform: translateY(-2px);
   border-color: #b8b8b2;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.service-card-link:focus-visible {
+  outline: 2px solid rgba(17, 17, 17, 0.45);
+  outline-offset: 3px;
 }
 
 .service-card__image {
@@ -1059,4 +1072,37 @@ h2 {
 
 .gdpr a {
   text-decoration: underline;
+}
+
+
+.service-detail .service-heading {
+  margin-bottom: 1.4rem;
+}
+
+.service-detail .service-image {
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.6rem;
+}
+
+.service-detail .cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+
+@media (max-width: 768px) {
+  .service-detail .project-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .service-detail .project-facts,
+  .service-detail .project-aside {
+    position: static;
+    width: 100%;
+  }
 }
