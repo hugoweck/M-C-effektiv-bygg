@@ -597,7 +597,7 @@ h2 {
   grid-template-columns: 1.25fr 0.9fr;
   max-width: 1120px;
   gap: clamp(1rem, 3.6vw, 3.25rem);
-  align-items: stretch;
+  align-items: start;
 }
 
 .contact-card,
@@ -709,25 +709,27 @@ h2 {
 }
 
 .contact-side {
-  --review-columns: 3;
-  --review-gap: 0.7rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 1rem;
-  min-height: 100%;
-  padding: 1rem;
+}
+
+.contact-image {
+  height: 340px;
+  overflow: hidden;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  background-image: url('image003_3-scaled.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+}
+
+.contact-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .contact-mini {
   padding: 1.1rem;
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(4px);
 }
 
 .mini-title {
@@ -766,72 +768,6 @@ h2 {
   border-radius: 999px;
   padding: 0.28rem 0.65rem;
   color: #4f4f4f;
-}
-
-
-
-.reviews-marquee-wrapper {
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
-  border-radius: 12px;
-}
-
-.reviews-marquee {
-  display: flex;
-  width: calc(200% + var(--review-gap));
-  gap: var(--review-gap);
-  animation: review-scroll 34s linear infinite;
-}
-
-.reviews-marquee-wrapper:is(:hover, :focus-within) .reviews-marquee {
-  animation-play-state: paused;
-}
-
-.reviews-grid {
-  flex: 0 0 calc((100% - var(--review-gap)) / 2);
-  display: grid;
-  grid-template-columns: repeat(var(--review-columns), minmax(0, 1fr));
-  gap: var(--review-gap);
-}
-
-.review-card {
-  margin: 0;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  padding: 0.68rem;
-  display: grid;
-  gap: 0.25rem;
-  align-content: start;
-}
-
-.review-card p {
-  margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.25;
-}
-
-.review-stars {
-  font-size: 0.84rem;
-  color: #956400;
-  letter-spacing: 0.05em;
-}
-
-.review-author {
-  font-weight: 600;
-  color: #303030;
-}
-
-@keyframes review-scroll {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(calc(-50% - (var(--review-gap) / 2)));
-  }
 }
 
 .contact ::selection {
@@ -884,12 +820,6 @@ h2 {
 
   .project-item:nth-child(2) {
     grid-row: auto;
-  }
-}
-
-@media (max-width: 1100px) {
-  .contact-side {
-    --review-columns: 2;
   }
 }
 
@@ -971,9 +901,8 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .contact-side {
-    --review-columns: 1;
-    min-height: 520px;
+  .contact-image {
+    height: 320px;
   }
 }
 
@@ -1031,10 +960,6 @@ h2 {
     transform: none !important;
     transition: none !important;
   }
-
-  .reviews-marquee {
-    animation: none;
-  }
 }
 
 
@@ -1086,7 +1011,7 @@ h2 {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.9fr);
   gap: clamp(1.2rem, 3vw, 2.4rem);
-  align-items: stretch;
+  align-items: start;
 }
 
 .project-layout > * {
