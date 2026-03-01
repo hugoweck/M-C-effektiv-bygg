@@ -709,7 +709,7 @@ h2 {
 }
 
 .contact-side {
-  --review-gap: 12px;
+  --review-gap: 8px;
   --review-card-width: 160px;
   --review-card-height: 140px;
   position: relative;
@@ -757,7 +757,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(3, var(--review-card-width));
   grid-auto-rows: var(--review-card-height);
-  justify-content: space-between;
+  justify-content: start;
   gap: var(--review-gap);
 }
 
