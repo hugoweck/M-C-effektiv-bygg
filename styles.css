@@ -740,7 +740,7 @@ h2 {
 .reviews-track {
   display: flex;
   width: max-content;
-  gap: var(--review-gap);
+  gap: 0;
   animation: reviews-marquee 32s linear infinite;
   will-change: transform;
 }
@@ -803,7 +803,7 @@ h2 {
   }
 
   to {
-    transform: translateX(calc(-100% - var(--review-gap)));
+    transform: translateX(-50%);
   }
 }
 
