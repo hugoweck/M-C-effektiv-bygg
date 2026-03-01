@@ -1136,16 +1136,16 @@ h2 {
 
 /* UX/performance updates */
 
-.project-item.reveal-up {
+.project-item.reveal-side {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateX(var(--slide-from, 72px));
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
   transition-delay: var(--stagger-delay, 0ms);
 }
 
-.project-item.reveal-up.is-visible {
+.project-item.reveal-side.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(0);
 }
 
 .project-lead {
@@ -1207,7 +1207,7 @@ h2 {
 
 @media (prefers-reduced-motion: reduce) {
   .service-card,
-  .project-item.reveal-up {
+  .project-item.reveal-side {
     transform: none !important;
   }
 }

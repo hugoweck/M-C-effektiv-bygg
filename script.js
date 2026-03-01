@@ -203,32 +203,60 @@ const initServiceCardAnimation = () => {
 };
 
 const initProjectCardAnimation = () => {
+  const projectSection = document.querySelector('#projekt');
   const projectCards = [...document.querySelectorAll('.project-grid .project-item')];
-  if (!projectCards.length) return;
+  if (!projectSection || !projectCards.length) return;
 
-  projectCards.forEach((card) => card.classList.add('reveal-up'));
+  projectCards.forEach((card, index) => {
+    const comesFromLeft = index % 2 === 0;
+    card.classList.add('reveal-side');
+    card.style.setProperty('--slide-from', comesFromLeft ? '-72px' : '72px');
+    card.style.setProperty('--stagger-delay', `${index * 90}ms`);
+  });
 
   if (prefersReducedMotion) {
     projectCards.forEach((card) => card.classList.add('is-visible'));
     return;
   }
 
-  const observer = new IntersectionObserver(
-    (entries, obs) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
+  let revealTimers = [];
 
-        entry.target.classList.add('is-visible');
-        obs.unobserve(entry.target);
+  const clearTimers = () => {
+    revealTimers.forEach((timer) => window.clearTimeout(timer));
+    revealTimers = [];
+  };
+
+  const playReveal = () => {
+    clearTimers();
+    projectCards.forEach((card, index) => {
+      card.classList.remove('is-visible');
+      const timer = window.setTimeout(() => {
+        card.classList.add('is-visible');
+      }, index * 90);
+      revealTimers.push(timer);
+    });
+  };
+
+  const resetReveal = () => {
+    clearTimers();
+    projectCards.forEach((card) => card.classList.remove('is-visible'));
+  };
+
+  const projectSectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          playReveal();
+          return;
+        }
+
+        resetReveal();
       });
     },
-    { threshold: 0.2, rootMargin: '0px 0px -10% 0px' }
+    { threshold: 0.35, rootMargin: '-10% 0px -10% 0px' }
   );
 
-  projectCards.forEach((card, index) => {
-    card.style.setProperty('--stagger-delay', `${index * 80}ms`);
-    observer.observe(card);
-  });
+  projectSectionObserver.observe(projectSection);
 };
 
 initServiceCardAnimation();
