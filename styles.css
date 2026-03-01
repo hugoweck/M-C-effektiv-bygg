@@ -712,6 +712,10 @@ h2 {
   --review-gap: 8px;
   --review-card-width: 160px;
   --review-card-height: 140px;
+  --review-columns: 6;
+  --review-grid-width: calc(
+    (var(--review-card-width) * var(--review-columns)) + (var(--review-gap) * (var(--review-columns) - 1))
+  );
   position: relative;
   display: grid;
   align-content: start;
@@ -751,11 +755,11 @@ h2 {
 }
 
 .reviews-grid {
-  flex: 0 0 100%;
-  width: 100%;
-  min-width: 100%;
+  flex: 0 0 auto;
+  width: var(--review-grid-width);
+  min-width: var(--review-grid-width);
   display: grid;
-  grid-template-columns: repeat(3, var(--review-card-width));
+  grid-template-columns: repeat(var(--review-columns), var(--review-card-width));
   grid-auto-rows: var(--review-card-height);
   justify-content: start;
   gap: var(--review-gap);
@@ -803,7 +807,7 @@ h2 {
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translateX(calc(-1 * var(--review-grid-width)));
   }
 }
 
