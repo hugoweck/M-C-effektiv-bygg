@@ -267,7 +267,7 @@ const initProjectCardAnimation = () => {
   projectCards.forEach((card, index) => {
     const comesFromLeft = index % 2 === 0;
     card.classList.add('reveal-side-desktop');
-    card.style.setProperty('--slide-from', comesFromLeft ? '-120vw' : '120vw');
+    card.style.setProperty('--slide-from', comesFromLeft ? '-88px' : '88px');
   });
 
   const projectCardObserver = new IntersectionObserver(
