@@ -72,20 +72,19 @@ a {
 
 .site-header {
   position: fixed;
-  top: 0;
   left: 0;
-  right: 0;
   width: 100%;
-  z-index: 1000;
+  top: 0;
+  z-index: 50;
   padding: 1.15rem 0;
   color: #fff;
   border-bottom: 1px solid transparent;
   background: transparent;
   transform: translateY(0);
-  transition: transform 220ms ease, background-color 220ms ease, box-shadow 220ms ease, padding 220ms ease, border-color 220ms ease;
+  transition: background-color 0.24s ease, padding 0.24s ease, border-color 0.24s ease, transform 0.3s ease;
 }
 
-.site-header.header--hidden {
+.site-header.is-hidden {
   transform: translateY(-110%);
 }
 
@@ -144,8 +143,8 @@ a {
 }
 
 .hero {
-  position: fixed;
-  inset: 0;
+  position: sticky;
+  top: 0;
   width: 100%;
   height: 100vh;
   min-height: 100vh;
@@ -183,10 +182,8 @@ a {
   padding: calc(var(--header-height) + 4rem) 0 4rem;
 }
 
-main {
-  position: relative;
-  z-index: 1;
-  padding-top: 100vh;
+.hero + section {
+  margin-top: 0 !important;
 }
 
 main > .section {
@@ -198,7 +195,7 @@ main > .section {
 .section.section-after-hero {
   margin: 0;
   padding: 80px 0;
-  background: #fff;
+  background: #f6f6f4;
 }
 
 .eyebrow {
