@@ -252,33 +252,31 @@ const initProjectCardAnimation = () => {
   const projectSection = document.querySelector('#projekt');
   const projectCards = [...document.querySelectorAll('.project-grid .project-item')];
   if (!projectSection || !projectCards.length) return;
-  const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
+  const isDesktopViewport = window.matchMedia('(min-width: 769px)').matches;
 
   projectCards.forEach((card) => {
-    card.classList.remove('reveal-side', 'reveal-side-mobile', 'is-visible');
+    card.classList.remove('reveal-side-desktop', 'is-visible');
     card.style.removeProperty('--slide-from');
     card.style.removeProperty('--stagger-delay');
   });
 
-  if (prefersReducedMotion || !isMobileViewport) {
+  if (prefersReducedMotion || !isDesktopViewport) {
     return;
   }
 
   projectCards.forEach((card, index) => {
     const comesFromLeft = index % 2 === 0;
-    card.classList.add('reveal-side-mobile');
-    card.style.setProperty('--slide-from', comesFromLeft ? '-72px' : '72px');
+    card.classList.add('reveal-side-desktop');
+    card.style.setProperty('--slide-from', comesFromLeft ? '-88px' : '88px');
   });
 
   const projectCardObserver = new IntersectionObserver(
-    (entries, observer) => {
+    (entries) => {
       entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
+        entry.target.classList.toggle('is-visible', entry.isIntersecting);
       });
     },
-    { threshold: 0.24, rootMargin: '0px 0px -10% 0px' }
+    { threshold: 0.35, rootMargin: '-6% 0px -6% 0px' }
   );
 
   projectCards.forEach((card) => projectCardObserver.observe(card));
