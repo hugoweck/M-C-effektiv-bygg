@@ -200,13 +200,43 @@ const initServiceCardAnimation = () => {
 
   const mobile = window.matchMedia('(max-width: 768px)').matches;
 
-  const serviceCardObserver = new IntersectionObserver(
-    (entries, observer) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
+  let revealTimers = [];
 
-        serviceCards.forEach((card) => card.classList.add('is-visible'));
-        observer.disconnect();
+  const clearTimers = () => {
+    revealTimers.forEach((timer) => window.clearTimeout(timer));
+    revealTimers = [];
+  };
+
+  const playReveal = () => {
+    clearTimers();
+    serviceCards.forEach((card, index) => {
+      card.classList.remove('is-visible');
+      const timer = window.setTimeout(() => {
+        card.classList.add('is-visible');
+      }, index * 90);
+      revealTimers.push(timer);
+    });
+  };
+
+  const playReverse = () => {
+    clearTimers();
+    [...serviceCards].reverse().forEach((card, index) => {
+      const timer = window.setTimeout(() => {
+        card.classList.remove('is-visible');
+      }, index * 70);
+      revealTimers.push(timer);
+    });
+  };
+
+  const serviceCardObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          playReveal();
+          return;
+        }
+
+        playReverse();
       });
     },
     {
