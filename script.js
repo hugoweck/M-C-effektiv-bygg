@@ -240,8 +240,8 @@ const initServiceCardAnimation = () => {
       });
     },
     {
-      threshold: mobile ? 0.15 : 0.3,
-      rootMargin: mobile ? '0px 0px -10% 0px' : '0px 0px -15% 0px'
+      threshold: mobile ? 0.25 : 0.45,
+      rootMargin: mobile ? '0px 0px -18% 0px' : '0px 0px -22% 0px'
     }
   );
 
