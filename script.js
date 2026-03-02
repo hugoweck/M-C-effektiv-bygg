@@ -145,9 +145,25 @@ window.addEventListener('hashchange', () => {
   scrollToHash(window.location.hash, false);
 });
 
+let lastScrollY = window.scrollY;
+
 const updateHeaderState = () => {
   if (!siteHeader) return;
-  siteHeader.classList.toggle('is-scrolled', window.scrollY > 20);
+
+  const currentScrollY = window.scrollY;
+  const isPastTop = currentScrollY > 20;
+  const isScrollingDown = currentScrollY > lastScrollY;
+  const scrollDelta = Math.abs(currentScrollY - lastScrollY);
+
+  siteHeader.classList.toggle('is-scrolled', isPastTop);
+
+  if (!isPastTop) {
+    siteHeader.classList.remove('is-hidden');
+  } else if (scrollDelta > 6) {
+    siteHeader.classList.toggle('is-hidden', isScrollingDown);
+  }
+
+  lastScrollY = currentScrollY;
 };
 
 updateHeaderState();
