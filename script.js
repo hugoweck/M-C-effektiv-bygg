@@ -287,8 +287,13 @@ const initProjectCardAnimation = () => {
     const scrollRange = sectionRect.height + window.innerHeight;
     const rawProgress = (window.innerHeight - sectionRect.top) / scrollRange;
     const sectionProgress = Math.max(0, Math.min(1, rawProgress));
-    const centerProgress = Math.max(0, 1 - Math.abs(sectionProgress - 0.5) / 0.5);
-    const projectShift = 1 - centerProgress;
+    const distanceFromCenter = Math.abs(sectionProgress - 0.5);
+
+    // Keep cards parked in the center for a wider scroll window on desktop
+    // so they do not immediately drift away after reaching the ideal position.
+    const centerHoldRange = 0.14;
+    const normalizedDistance = Math.max(0, (distanceFromCenter - centerHoldRange) / (0.5 - centerHoldRange));
+    const projectShift = Math.min(1, normalizedDistance);
 
     projectCards.forEach((card) => {
       card.style.setProperty('--project-shift', projectShift.toFixed(4));
