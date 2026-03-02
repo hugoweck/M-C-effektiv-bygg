@@ -556,9 +556,12 @@ h2 {
 }
 
 .project-item {
+  display: block;
   position: relative;
   overflow: hidden;
   min-height: 280px;
+  border-radius: 10px;
+  background: #e9e9e9;
 }
 
 .project-item:nth-child(2) {
@@ -905,9 +908,12 @@ h2 {
 
   .split-grid,
   .footer-grid,
-  .project-grid,
   .contact-inner {
     grid-template-columns: 1fr;
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .project-item:nth-child(2) {
@@ -966,6 +972,14 @@ h2 {
   .service-grid,
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .project-grid {
+    gap: 0.8rem;
+  }
+
+  .project-item {
+    min-height: 180px;
   }
 
   .service-grid {
@@ -1306,5 +1320,13 @@ h2 {
   .service-card,
   .project-item.reveal-side {
     transform: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-item.reveal-side {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

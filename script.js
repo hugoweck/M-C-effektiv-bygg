@@ -252,6 +252,7 @@ const initProjectCardAnimation = () => {
   const projectSection = document.querySelector('#projekt');
   const projectCards = [...document.querySelectorAll('.project-grid .project-item')];
   if (!projectSection || !projectCards.length) return;
+  const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
 
   projectCards.forEach((card, index) => {
     const comesFromLeft = index % 2 === 0;
@@ -260,7 +261,7 @@ const initProjectCardAnimation = () => {
     card.style.setProperty('--stagger-delay', `${index * 90}ms`);
   });
 
-  if (prefersReducedMotion) {
+  if (prefersReducedMotion || isMobileViewport) {
     projectCards.forEach((card) => card.classList.add('is-visible'));
     return;
   }
