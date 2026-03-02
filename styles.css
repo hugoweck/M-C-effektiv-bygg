@@ -1247,14 +1247,12 @@ h2 {
 
 /* UX/performance updates */
 
-.project-item.reveal-side-mobile {
-  opacity: 0;
+.project-item.reveal-side-desktop {
   transform: translateX(var(--slide-from, 72px));
-  transition: opacity 0.62s ease-out, transform 0.62s ease-out;
+  transition: transform 0.62s ease-out;
 }
 
-.project-item.reveal-side-mobile.is-visible {
-  opacity: 1;
+.project-item.reveal-side-desktop.is-visible {
   transform: translateX(0);
 }
 
@@ -1317,13 +1315,13 @@ h2 {
 
 @media (prefers-reduced-motion: reduce) {
   .service-card,
-  .project-item.reveal-side-mobile {
+  .project-item.reveal-side-desktop {
     transform: none !important;
   }
 }
 
-@media (max-width: 768px) {
-  .project-item.reveal-side-mobile {
-    will-change: transform, opacity;
+@media (min-width: 769px) {
+  .project-item.reveal-side-desktop {
+    will-change: transform;
   }
 }
