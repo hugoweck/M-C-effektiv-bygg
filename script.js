@@ -146,28 +146,49 @@ window.addEventListener('hashchange', () => {
 });
 
 let lastScrollY = window.scrollY;
+let tickingHeader = false;
+const headerDeltaThreshold = 8;
 
 const updateHeaderState = () => {
   if (!siteHeader) return;
 
   const currentScrollY = window.scrollY;
-  const isPastTop = currentScrollY > 20;
-  const isScrollingDown = currentScrollY > lastScrollY;
   const scrollDelta = Math.abs(currentScrollY - lastScrollY);
 
-  siteHeader.classList.toggle('is-scrolled', isPastTop);
-
-  if (!isPastTop) {
-    siteHeader.classList.remove('is-hidden');
-  } else if (scrollDelta > 6) {
-    siteHeader.classList.toggle('is-hidden', isScrollingDown);
+  if (currentScrollY < 20) {
+    siteHeader.classList.remove('header--hidden', 'is-scrolled');
+    lastScrollY = currentScrollY;
+    tickingHeader = false;
+    return;
   }
 
-  lastScrollY = currentScrollY;
+  siteHeader.classList.add('is-scrolled');
+
+  if (scrollDelta >= headerDeltaThreshold) {
+    const isScrollingDown = currentScrollY > lastScrollY;
+
+    if (isScrollingDown && currentScrollY > 80) {
+      siteHeader.classList.add('header--hidden');
+    } else {
+      siteHeader.classList.remove('header--hidden');
+    }
+
+    lastScrollY = currentScrollY;
+  }
+
+  tickingHeader = false;
 };
 
 updateHeaderState();
-window.addEventListener('scroll', updateHeaderState, { passive: true });
+window.addEventListener(
+  'scroll',
+  () => {
+    if (tickingHeader) return;
+    tickingHeader = true;
+    window.requestAnimationFrame(updateHeaderState);
+  },
+  { passive: true }
+);
 
 const revealObserver = new IntersectionObserver(
   (entries) => {
