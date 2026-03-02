@@ -296,14 +296,12 @@ h2 {
 }
 
 .image-frame img,
-.service-card__image img,
-.project-item img {
+.service-card__image img {
   transition: transform 0.65s ease;
 }
 
 .image-frame:hover img,
-.service-card:hover .service-card__image img,
-.project-item:hover img {
+.service-card:hover .service-card__image img {
   transform: scale(1.05);
 }
 
@@ -562,19 +560,43 @@ h2 {
   min-height: 280px;
   border-radius: 10px;
   background: #e9e9e9;
+  perspective: 1200px;
+  cursor: pointer;
 }
 
 .project-item:nth-child(2) {
   grid-row: span 2;
 }
 
-.project-item img {
+.project-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease;
+  transform-style: preserve-3d;
+}
+
+.project-item:hover .project-card-inner,
+.project-item:focus-visible .project-card-inner {
+  transform: rotateY(180deg);
+}
+
+.project-front,
+.project-back {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+
+.project-front img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.overlay {
+.project-front .overlay {
   position: absolute;
   inset: auto 0 0 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
@@ -585,10 +607,41 @@ h2 {
   gap: 0.2rem;
 }
 
-.overlay em {
+.project-front .overlay em {
   font-style: normal;
   color: #cfcfcf;
   font-size: 0.9rem;
+}
+
+.project-back {
+  transform: rotateY(180deg);
+  color: #fff;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    var(--project-bg);
+  background-size: cover;
+  background-position: center;
+}
+
+.project-back strong {
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.project-back p {
+  margin: 0;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.project-back__cta {
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .stats-grid {
@@ -982,6 +1035,10 @@ h2 {
     min-height: 180px;
   }
 
+  .project-back {
+    padding: 1rem;
+  }
+
   .service-grid {
     overflow-x: clip;
   }
@@ -1319,5 +1376,18 @@ h2 {
 @media (min-width: 769px) {
   .project-item.reveal-side-desktop {
     will-change: transform;
+  }
+}
+
+
+@media (hover: none) {
+  .project-card-inner,
+  .project-item:hover .project-card-inner,
+  .project-item:focus-visible .project-card-inner {
+    transform: none !important;
+  }
+
+  .project-back {
+    display: none;
   }
 }
