@@ -254,56 +254,34 @@ const initProjectCardAnimation = () => {
   if (!projectSection || !projectCards.length) return;
   const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
 
-  projectCards.forEach((card, index) => {
-    const comesFromLeft = index % 2 === 0;
-    card.classList.add('reveal-side');
-    card.style.setProperty('--slide-from', comesFromLeft ? '-72px' : '72px');
-    card.style.setProperty('--stagger-delay', `${index * 90}ms`);
+  projectCards.forEach((card) => {
+    card.classList.remove('reveal-side', 'reveal-side-mobile', 'is-visible');
+    card.style.removeProperty('--slide-from');
+    card.style.removeProperty('--stagger-delay');
   });
 
-  if (prefersReducedMotion || isMobileViewport) {
-    projectCards.forEach((card) => card.classList.add('is-visible'));
+  if (prefersReducedMotion || !isMobileViewport) {
     return;
   }
 
-  let revealTimers = [];
+  projectCards.forEach((card, index) => {
+    const comesFromLeft = index % 2 === 0;
+    card.classList.add('reveal-side-mobile');
+    card.style.setProperty('--slide-from', comesFromLeft ? '-72px' : '72px');
+  });
 
-  const clearTimers = () => {
-    revealTimers.forEach((timer) => window.clearTimeout(timer));
-    revealTimers = [];
-  };
-
-  const playReveal = () => {
-    clearTimers();
-    projectCards.forEach((card, index) => {
-      card.classList.remove('is-visible');
-      const timer = window.setTimeout(() => {
-        card.classList.add('is-visible');
-      }, index * 90);
-      revealTimers.push(timer);
-    });
-  };
-
-  const resetReveal = () => {
-    clearTimers();
-    projectCards.forEach((card) => card.classList.remove('is-visible'));
-  };
-
-  const projectSectionObserver = new IntersectionObserver(
-    (entries) => {
+  const projectCardObserver = new IntersectionObserver(
+    (entries, observer) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          playReveal();
-          return;
-        }
-
-        resetReveal();
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
       });
     },
-    { threshold: 0.35, rootMargin: '-10% 0px -10% 0px' }
+    { threshold: 0.24, rootMargin: '0px 0px -10% 0px' }
   );
 
-  projectSectionObserver.observe(projectSection);
+  projectCards.forEach((card) => projectCardObserver.observe(card));
 };
 
 initServiceCardAnimation();
