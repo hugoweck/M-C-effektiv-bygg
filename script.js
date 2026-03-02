@@ -253,33 +253,81 @@ const initProjectCardAnimation = () => {
   const projectCards = [...document.querySelectorAll('.project-grid .project-item')];
   if (!projectSection || !projectCards.length) return;
   const isDesktopViewport = window.matchMedia('(min-width: 769px)').matches;
+  let ticking = false;
+  let isInView = false;
+  let maxOffset = 0;
 
   projectCards.forEach((card) => {
-    card.classList.remove('reveal-side-desktop', 'is-visible');
-    card.style.removeProperty('--slide-from');
-    card.style.removeProperty('--stagger-delay');
+    card.classList.remove('reveal-side-desktop');
+    card.style.removeProperty('--project-shift');
+    card.style.removeProperty('--slide-direction');
   });
 
   if (prefersReducedMotion || !isDesktopViewport) {
     return;
   }
 
+  const recalculateOffset = () => {
+    maxOffset = Math.max(window.innerWidth * 0.82, 720);
+    projectSection.style.setProperty('--project-max-offset', `${maxOffset}px`);
+  };
+
   projectCards.forEach((card, index) => {
     const comesFromLeft = index % 2 === 0;
     card.classList.add('reveal-side-desktop');
-    card.style.setProperty('--slide-from', comesFromLeft ? '-88px' : '88px');
+    card.style.setProperty('--slide-direction', comesFromLeft ? '-1' : '1');
+    card.style.setProperty('--project-shift', '1');
   });
+
+  const updateCards = () => {
+    ticking = false;
+    if (!isInView) return;
+
+    const sectionRect = projectSection.getBoundingClientRect();
+    const scrollRange = sectionRect.height + window.innerHeight;
+    const rawProgress = (window.innerHeight - sectionRect.top) / scrollRange;
+    const sectionProgress = Math.max(0, Math.min(1, rawProgress));
+    const centerProgress = Math.max(0, 1 - Math.abs(sectionProgress - 0.5) / 0.5);
+    const projectShift = 1 - centerProgress;
+
+    projectCards.forEach((card) => {
+      card.style.setProperty('--project-shift', projectShift.toFixed(4));
+    });
+  };
+
+  const queueUpdate = () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(updateCards);
+  };
 
   const projectCardObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        entry.target.classList.toggle('is-visible', entry.isIntersecting);
+        if (entry.target !== projectSection) return;
+        isInView = entry.isIntersecting;
+        if (!isInView) {
+          projectCards.forEach((card) => {
+            card.style.setProperty('--project-shift', '1');
+          });
+          return;
+        }
+
+        queueUpdate();
       });
     },
-    { threshold: 0.35, rootMargin: '-6% 0px -6% 0px' }
+    { threshold: 0, rootMargin: '0px' }
   );
 
-  projectCards.forEach((card) => projectCardObserver.observe(card));
+  recalculateOffset();
+  projectCardObserver.observe(projectSection);
+
+  window.addEventListener('resize', () => {
+    recalculateOffset();
+    queueUpdate();
+  });
+
+  window.addEventListener('scroll', queueUpdate, { passive: true });
 };
 
 initServiceCardAnimation();

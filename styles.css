@@ -1248,12 +1248,8 @@ h2 {
 /* UX/performance updates */
 
 .project-item.reveal-side-desktop {
-  transform: translateX(var(--slide-from, 72px));
-  transition: transform 0.62s ease-out;
-}
-
-.project-item.reveal-side-desktop.is-visible {
-  transform: translateX(0);
+  transform: translateX(calc(var(--slide-direction, 1) * var(--project-max-offset, 720px) * var(--project-shift, 1)));
+  transition: transform 0.14s linear;
 }
 
 .project-lead {
